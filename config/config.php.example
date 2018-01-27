@@ -1,0 +1,51 @@
+<?php
+#Config DB
+define ('DB_USER', "portal");
+define ('DB_PASSWORD', "root");
+define ('DB_DATABASE', "portal");
+define ('DB_HOST', "wtest");
+#Config LDAP
+// Active Directory server
+define('LDAP_HOST', "example.com");
+// Active Directory DN
+define('LDAP_DN_Users',"OU=Users,DC=example,DC=com");
+define('LDAP_DN_Admins',"OU=Admins,DC=example,DC=com");
+// Active Directory user group
+define('LDAP_USER_GROUP', "Employee");
+// Active Directory manager group
+define('LDAP_MANAGER_GROUPS', serialize (array ("admin1", "admin2")));
+// Domain, for purposes of constructing $user
+define('LDAP_USR_DOM',"@example.com");
+// Nginx config
+define('NGINX_FILE',"/etc/nginx/sites-enabled/proxy.conf");
+//Config mail
+define('MAIL_USER',"notifications_user@example.com");
+define('MAIL_PASS',"password");
+define('MAIL_SERVER',"ntf.example.com");
+define('MAIL_ADMIN',"helpdesk_team@example.com");
+//Config tasks
+define('DAYS_BEFORE_DISABLE',"5");
+define('DAYS_BEFORE_DELETE',"-5");
+define('DAYS_USER_CAN_EXTEND_VM',"180");
+define('LOG_FILE',"/var/log/selfportal.log");
+//Openstack
+define('OS_AUTH_URL',"https://openstack.example.com:5000/v3");
+define('OS_PROJECT_ID',"<project-id-at-openstack>");
+define('OS_PROJECT_NAME',"SELFPORTAL");
+define('OS_USER_DOMAIN_NAME',"Default");
+define('OS_USERNAME',"user");
+define('OS_PASSWORD',"password");
+define('OS_REGION_NAME',"RegionOne");
+define('OS_INTERFACE',"public");
+define('OS_IDENTITY_API_VERSION',"3");
+define('OS_NET_ID',"<network-id-at-openstack>");
+define('OS_SEC_GRP',"self_net");
+//VSphere
+define('VMW_USERNAME','user@vsphere.local');
+define('VMW_PASSWORD','password');
+define('VMW_SERVER','https://vcenter.example.com');
+define('VMW_TEMPLATE_FOLDER','SelfPortalTemplates');
+define('VMW_VM_FOLDER','SelfPortalVMs');
+define('VMW_RESOURCE_POOL','SelfPortal');
+define('VMW_DATASTORE','DatastoreName');
+?>

@@ -1,0 +1,59 @@
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>VM Web Console</title>
+
+    <!-- common js/css lib -->
+    <link href="/css/wmks-all.css" rel="stylesheet" type="text/css" />
+    <link href="/css/jquery-ui.min.css" rel="stylesheet" type="text/css" />
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery-ui.min.js"></script>
+    <script src="/js/wmks.min.js"></script>
+
+    <script>
+
+	function getParameterByName(name, url) {
+    	if (!url) url = window.location.href;
+    	name = name.replace(/[\[\]]/g, "\\$&");
+    	var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    	if (!results) return null;
+    	if (!results[2]) return '';
+    	return decodeURIComponent(results[2].replace(/\+/g, " "));
+	}
+
+	var url = getParameterByName("url");
+    $(document).ready(function(){
+                          _wmks = $("#wmksContainer")
+                          .wmks({"useVNCHandshake" : false, "sendProperMouseWheelDeltas": true,"fitToParent":true})
+                          .bind("wmksconnecting", function() {
+                                console.log("The console is connecting");
+                                })
+                          .bind("wmksconnected", function() {
+                                console.log("The console has been connected");
+                                })
+                          .bind("wmksdisconnected", function(evt, info) {
+                                console.log("The console has been disconnected");
+                                console.log(evt, info);
+                                })
+                          .bind("wmkserror", function(evt, errObj) {
+                                console.log("Error!");
+                                console.log(evt, errObj);
+                                })
+                          .bind("wmksiniterror", function(evt, customData) {
+                                console.log(evt);
+                                console.log(customData);
+                                })
+                          .bind("wmksresolutionchanged", function(canvas) {
+                                console.log("Resolution has changed!");
+                                })
+
+                          _wmks.wmks("connect", url);
+                        });
+
+    </script>
+</head>
+
+<body>
+    <div id="wmksContainer" style="position:absolute;width:100%;height:100%"></div>
+</body>

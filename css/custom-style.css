@@ -1,0 +1,59 @@
+.alert{
+	margin-bottom: 0px;
+	margin-top: 10px;
+}
+
+.redicon{
+    color: red;
+}
+.top-panel .list-group-item {
+    border: 0px;
+}
+.nolink{
+    color: black;
+    text-decoration: none;
+}
+.nolink:hover{
+    color: black;
+    text-decoration: none;
+}
+.key-list-item-info {
+    float: left;
+}
+.form-check-label {
+    padding-right: 10px;
+    padding-left: 10px;
+}
+.spinner-on {
+    font-size:84px;
+    color:white;
+    margin-top: 20%;
+    margin-right: 10%;
+    margin-bottom: 10%;
+    margin-left: 50%;
+}
+div.panel-footer{
+    color: gray;
+}
+small{
+   color: gray;
+}
+
+.input-addon {
+  /*  copy of ".form input" */
+font-family: Roboto, sans-serif;
+outline: 0px;
+background: rgb(242, 242, 242);
+border: 0px;
+margin: 0px 0px 15px;
+padding: 15px;
+box-sizing:
+border-box;
+font-size: 14px;
+}
+
+.input-addon {
+  width: 45%;
+  color: gray;
+  float: right;
+}
