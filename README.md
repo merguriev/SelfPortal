@@ -84,19 +84,19 @@ pip install python-openstackclient
 ## Testing and using
 
 Once deployed, you can open SelfPortal at your web browser. The login window will appear:
-![Login](img/login_window.png)
+![Login](img/login_window.PNG)
 But do not hurry to celebrate - it's just a static web page, that doesn't require even a database connection. Input your credentials and press "Login" button. If the following window appears without causing any problems, such as incessant page refreshing, you're probably installed everything correctly.
-![Dashboard](img/dashboard_window.png)
+![Dashboard](img/dashboard_window.PNG)
 But, just to be sure, lets start some virtual machines:
-![Deploying vms](img/deploying_vms_window.png)
+![Deploying vms](img/deploying_vms_window.PNG)
 > Warning! VSphere VM creation is asynchronous and OpenStack is not. This part of instruction is based on VSphere VM creation.
 
 Just wait a little (VM creation time is really depends on multiple conditions, such as image size, host performance and so on), then press refresh icon at the top right corner of the page. If your VCenter shows, that VM is ready, but SelfPortal (within a time of one minute) it doesn't - you've probably forgot to add www-data permissions to modify root crontab.
-![Success deployment](img/one_deployed_vm_window.png)
+![Success deployment](img/one_deployed_vm_window.PNG)
 That's it! Now you can check your notifications... 
-![Dashboard](img/notifications_window.png)
+![Dashboard](img/notifications_window.PNG)
 ...or go to admin panel and check the VMs of other users (if you have sufficient permissions, of course:wink:).
-![Admin panel](img/admin_panel_window.png)
+![Admin panel](img/admin_panel_window.PNG)
 
 
 ## Contributing
@@ -123,3 +123,17 @@ This project is licensed under the CC-BY-NC-SA License - see the [CC website](ht
 * [PHPMailer](https://github.com/PHPMailer/PHPMailer) is used to notificate users and admins team.
 * [Bootstrap](https://getbootstrap.com/) in concatenation with [Font Awesome Icons](http://fontawesome.io/) is a libraries we've based on.
 * [jQuery](https://jquery.com/), [jQueryUI](https://jqueryui.com/), [MetisMenu](https://github.com/onokumus/metismenu), [DataTables](https://datatables.net/) - all of this is used to make picture beautiful for you. 
+
+## Development plans
+
+- [x] Acrhitecture&Interface
+- [x] Splitting rights, admin panel
+- [x] HTTP website proxy, blacklist
+- [x] User list
+- [x] OpenStack provider - VM creation, modification, deletion
+- [x] VSphere provider - VM creation, modification, deletion
+- [x] Terminator - delete old unused websites and VMs
+- [ ] HTTPS website proxy using Lets Encrypt wildcard certificates
+- [ ] WebSocket proxy
+- [ ] VMs Backups/Snapshots
+- [ ] Mounting ISO files to VSphere VMs
