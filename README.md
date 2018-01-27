@@ -1,6 +1,8 @@
-![SelfPortal](logo.png)
+<p align="center">
+  ![SelfPortal](logo.png)
+</p>
 
-# About.
+# About
 
 SelfPortal is a service, that was created by an Altoros DevOps team in order to resolve problem with granting access to company resources for developers. It's started as a small, almost static web page, that helped developers to publish their websites into the global network, but over time became a utility, that provide 
 
@@ -36,19 +38,19 @@ cpan install Socket6
 
 3. Clone this repo to /var/www/selfportal. Import database from /var/www/selfportal/master/db/portal.sql
 
-4. Install VMWare vSphere Perl SDK (download it from vmware.com. [Here](http://www.dropwizard.io/1.0.2/docs/) is a link for VSphere 6.0 SDK).
+4. Install VMWare vSphere Perl SDK (download it from vmware.com. [Here](https://code.vmware.com/web/sdk/60/vsphere-perl) is a link for VSphere 6.0 SDK).
 
 > Prerequisites: 
 ```Shell
 sudo apt-get install lib32z1 build-essential gcc uuid uuid-dev perl libssl-dev perl-doc liburi-perl libxml-libxml-perl libcrypt-ssleay-perl
 ```
 
-4.1. Extract the archive you've downloaded from VMWare website. Install SDK executng vmware-install.pl file.
+Extract the archive you've downloaded from VMWare website. Install SDK executng vmware-install.pl file.
 ```Shell
 sudo vmware-vsphere-cli-distrib/vmware-install.pl
 ```
 
-> There are two common issues in installation proccess:
+> There are two common issues in the installation proccess:
 1. While executing vmware-install.pl file you will be prompted to install required dependencies. When you will agree to do this - each dependency will be install for 1-2 minutes. But one of them, called Soap::Lite will be installed. Нажать Ctrl+C один раз.
 
 2. Perl will throw warnings, until you change one line at /usr/share/perl/<version>/VMware/VICommon.pm, where <version> is a version of your Perl.
@@ -82,19 +84,19 @@ pip install python-openstackclient
 ## Testing and using
 
 Once deployed, you can open SelfPortal at your web browser. The login window will appear:
-![Login](login_window.png)
+![Login](img/login_window.png)
 But do not hurry to celebrate - it's just a static web page, that doesn't require even a database connection. Input your credentials and press "Login" button. If the following window appears without causing any problems, such as incessant page refreshing, you're probably installed everything correctly.
-![Dashboard](dashboard_window.png)
+![Dashboard](img/dashboard_window.png)
 But, just to be sure, lets start some virtual machines:
-![Deploying vms](deploying_vms_window.png)
+![Deploying vms](img/deploying_vms_window.png)
 > Warning! VSphere VM creation is asynchronous and OpenStack is not. This part of instruction is based on VSphere VM creation.
 
 Just wait a little (VM creation time is really depends on multiple conditions, such as image size, host performance and so on), then press refresh icon at the top right corner of the page. If your VCenter shows, that VM is ready, but SelfPortal (within a time of one minute) it doesn't - you've probably forgot to add www-data permissions to modify root crontab.
-![Success deployment](one_deployed_vm_window.png)
+![Success deployment](img/one_deployed_vm_window.png)
 That's it! Now you can check your notifications... 
-![Dashboard](notifications_window.png)
+![Dashboard](img/notifications_window.png)
 ...or go to admin panel and check the VMs of other users (if you have sufficient permissions, of course:wink:).
-![Admin panel](admin_panel_window.png)
+![Admin panel](img/admin_panel_window.png)
 
 
 ## Contributing
