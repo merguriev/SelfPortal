@@ -84,18 +84,29 @@ pip install python-openstackclient
 ## Testing and using
 
 Once deployed, you can open SelfPortal at your web browser. The login window will appear:
+
 ![Login](img/login_window.PNG)
+
 But do not hurry to celebrate - it's just a static web page, that doesn't require even a database connection. Input your credentials and press "Login" button. If the following window appears without causing any problems, such as incessant page refreshing, you're probably installed everything correctly.
+
 ![Dashboard](img/dashboard_window.PNG)
+
 But, just to be sure, lets start some virtual machines:
+
 ![Deploying vms](img/deploying_vms_window.PNG)
+
 > Warning! VSphere VM creation is asynchronous and OpenStack is not. This part of instruction is based on VSphere VM creation.
 
 Just wait a little (VM creation time is really depends on multiple conditions, such as image size, host performance and so on), then press refresh icon at the top right corner of the page. If your VCenter shows, that VM is ready, but SelfPortal (within a time of one minute) it doesn't - you've probably forgot to add www-data permissions to modify root crontab.
+
 ![Success deployment](img/one_deployed_vm_window.PNG)
+
 That's it! Now you can check your notifications... 
+
 ![Dashboard](img/notifications_window.PNG)
+
 ...or go to admin panel and check the VMs of other users (if you have sufficient permissions, of course:wink:).
+
 ![Admin panel](img/admin_panel_window.PNG)
 
 
