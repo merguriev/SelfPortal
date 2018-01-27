@@ -1,5 +1,5 @@
 <p align="center">
-  ![SelfPortal](logo.png)
+  <img src ="logo.png"/>
 </p>
 
 # About
@@ -53,7 +53,7 @@ sudo vmware-vsphere-cli-distrib/vmware-install.pl
 > There are two common issues in the installation proccess:
 1. While executing vmware-install.pl file you will be prompted to install required dependencies. When you will agree to do this - each dependency will be install for 1-2 minutes. But one of them, called Soap::Lite will be installed. Нажать Ctrl+C один раз.
 
-2. Perl will throw warnings, until you change one line at /usr/share/perl/<version>/VMware/VICommon.pm, where <version> is a version of your Perl.
+2. Perl will throw warnings, until you change one line at /usr/share/perl/<version>/VMware/VICommon.pm, where <version> is a version of your Perl. For 6.0 - it was a line #2332.
 
 Original line:
 ```Perl 
