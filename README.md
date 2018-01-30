@@ -81,6 +81,15 @@ pip install python-openstackclient
 
 > www-data    ALL=NOPASSWD: /usr/sbin/nginx, /usr/bin/crontab, /bin/grep
 
+11. Optional. If you want SelfPortal to terminate your VMs - please, add those lines to the root crontab:
+
+> # m h  dom mon dow   command
+> 0 8 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action notify
+> 1 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action disable
+> 5 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action delete
+> 10 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action shutdown_vm
+> 15 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action terminate_vm
+
 ## Testing and using
 
 Once deployed, you can open SelfPortal at your web browser. The login window will appear:
