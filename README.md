@@ -4,7 +4,7 @@
 
 # About
 
-SelfPortal is a service, that was created by an Altoros DevOps team in order to resolve problem with granting access to company resources for developers. It's started as a small, almost static web page, that helped developers to publish their websites into the global network, but over time became a utility, that provide 
+SelfPortal is a service, that was created by an Altoros DevOps team in order to resolve problem with granting access to company resources for developers. It has started as a small, almost static web page, that helped developers to publish their websites into the global network, but over time became a utility, that provide wide possibilites to create virtual development environment, manage it and clear while necessary. Secure control over all the resources is a kind of main idea of our project.
 
 ## Getting Started
 
