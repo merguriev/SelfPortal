@@ -36,11 +36,11 @@ switch ($options['action']){
 		break;
 }
 
-function update_info($task)
+function update_info($task,$user)
 {
-	$cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate none --vmname ".$task." --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action updateinfo --datacenter '".VMW_DATACENTER."'";
+	$cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate none --vmname ".$task." --user ".$user." --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action updateinfo --datacenter '".VMW_DATACENTER."'";
 	$result=shell_exec($cli);
-	if ($result!=0)
+	if ($result!==0)
 	{
 		if ($result==1)
 		{
@@ -48,21 +48,16 @@ function update_info($task)
 		}
 		elseif (preg_match('/\s/',$result))
 		{
-			$query="DELETE FROM vms where vm_id='".$task."'";
-			$toreturn=0;
+			#$query="DELETE FROM vms where vm_id='".$task."'";
+			$query="UPDATE `vms` SET `vm_id`='FAILURE_".$task."' where vm_id='".$task."'";
+			$toreturn=$result;
 		}
 		else
 		{
 			$query="UPDATE vms SET vm_id='".$result."' where vm_id='".$task."'";
 			$toreturn=$result;
 		}
-		$conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE);
-    	if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-		} else {
-        	mysqli_query($conn,$query) or die("MySQL error: " . mysqli_error($conn) . "<hr>\nQuery: $query");
-        }
-    	$conn->close();
+		sql_query($query);
 
 		return $toreturn;
 	}
@@ -81,16 +76,17 @@ function vmupdate()
 	$success=true;
     $conn->close();
 	foreach ($vm_in_db as $item) {
-				$error = update_info($item['vm_id']);
+				$error = update_info($item['vm_id'],$item['username']);
 				if ($error==1)
 				{
-					vmdebug($item['vm_id'],$item['title']."_".$item['username']);
-					send_notification ($item['email'],'Hi! Your VM called "'.$item['title'].'" is ready.<br><hr>Sincerely yours, SelfPortal. In case of any errors - please, contact your system administrators via '.MAIL_ADMIN);
+					$returneddebug=vmdebug($item['vm_id'],$item['title'],$item['username']);
+					if ($returneddebug==0) send_notification ($item['email'],'Hi! Your VM called "'.$item['title'].'" is ready.<br><hr>Sincerely yours, SelfPortal. In case of any errors - please, contact your system administrators via '.MAIL_ADMIN);
 					$item['vm_id']=$error;
 				}
-				elseif ($error==0) {
+				elseif (preg_match('/\s/',$error)) {
 					send_notification (MAIL_ADMIN,'User with id '.$item['user_id'].' have tried to create VM (VSphere provider, i guess) with name '.$item['title'].', but error occured: '.$error);
-					send_notification ($item['email'],'Hi! There was something strange, when we\'ve to create VM called '.$item['title'].' for you. Unfortunately, an error occured: '.$error.'. If you know how to fix it - good, otherwise - please, contact your system administrators via '.MAIL_ADMIN);
+					send_notification ($item['email'],'Hi! There was something strange, when we\'ve to create VM called "'.$item['title'].'" for you. Unfortunately, an error occured: '.$error.'. If you know how to fix it - good, otherwise - please, contact your system administrators via '.MAIL_ADMIN);
+					
 				}
 				elseif ($error!=-1)
 				{
@@ -102,18 +98,24 @@ function vmupdate()
 	if ($success) shell_exec("sudo crontab -l -u root | grep -v '/modules/tasks.php --action vmupdate' | sudo crontab -u root -");
 }
 
-function vmdebug($task,$vmname)
+function vmdebug($task,$vmname,$user)
 {
 	$cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/listvms.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --vmalias ".$vmname." --folder '".VMW_VM_FOLDER."' --datacenter '".VMW_DATACENTER."'";
 	$result=shell_exec($cli);
-	$query="UPDATE vms SET vm_id='".$result."' where vm_id='".$task."'";
-	$conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE);
-    if ($conn->connect_error) {
-    	die("Connection failed: " . $conn->connect_error);
-	} else {
-       	mysqli_query($conn,$query) or die("MySQL error: " . mysqli_error($conn) . "<hr>\nQuery: $query");
-    }
-    $conn->close();
+	if (!empty($result))
+	{
+		$query="UPDATE `vms` SET `vm_id`='".$result."' where `vm_id`='".$task."'";
+		sql_query($query);
+		$cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate none --vmname ".$result." --user ".$user." --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action rename --datacenter '".VMW_DATACENTER."'";
+		shell_exec($cli);
+	}
+	else {
+		send_notification(MAIL_ADMIN,"Hello, Administrator! Something went wrong when user named ".$user." tried to create VM '".$vmname."' in VSphere. I was not able to find task '".$task."' or a vm by it's name. Please, check it.");
+		$query="UPDATE `vms` set `vm_id`='FAILURE_".$task."' where `vm_id`='".$task."'";
+		sql_query($query);
+		return 1;
+	}
+	return 0;
 }
 
 function sql_query($query){

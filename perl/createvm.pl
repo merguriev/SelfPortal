@@ -45,6 +45,11 @@ my %opts = (
                 help => "Name to set for the new VM",
                 required => 1,
         },
+		user => {
+                type => "=s",
+                help => "Creator name",
+                required => 1,
+        },
         datastore => {
                 type => "=s",
                 help => "Name of datastore in vCenter",
@@ -68,7 +73,7 @@ Opts::parse();
 sub deploy_template() {
         my ($vmtemplate, $datastore, $resourcepool, $folder, $vm_view, $vmname);
 
-		$vmname = Opts::get_option('vmname');
+		$vmname = Opts::get_option('vmname').'_'.Opts::get_option('user');
         $datastore = Vim::find_entity_view( view_type => 'Datastore', filter => { 'name' => Opts::get_option('datastore') } );
 		$resourcepool = Vim::find_entity_view( view_type => 'ResourcePool', filter => { 'name' => Opts::get_option('resourcepool') } );
         $vm_view = Vim::find_entity_view( view_type => 'VirtualMachine', filter => { 'config.uuid' => Opts::get_option('vmtemplate') } );
@@ -99,14 +104,37 @@ sub update_task()
     my $Mor = new ManagedObjectReference();
 	$Mor->{type}="Task";
 	$Mor->{value}=Opts::get_option('vmname');
+	my $user = Opts::get_option('user');
 	my $task;
 	eval{
 		$task=Vim::get_view(mo_ref=>$Mor)->info;
 	};
 	if ($@) { print 1; }
-	elsif ($task->state->val eq 'success') {print Vim::get_view(mo_ref=>$task->result)->summary->config->uuid;}
+	elsif ($task->state->val eq 'success') {
+		my $uuid=Vim::get_view(mo_ref=>$task->result)->summary->config->uuid;
+		print $uuid;
+		renamesub ($uuid,$user);
+	}
 	elsif ($task->state->val eq 'error') {print $task->error->localizedMessage;}
 	else {print 0;}
+}
+
+sub renamesub
+{
+	my ($uuid,$user)=@_;
+	my $vm_views = Vim::find_entity_views(
+   		view_type => 'VirtualMachine',
+			filter => {
+				'config.uuid' => $uuid
+			}
+   		);
+   	my $vm_view = shift @$vm_views;
+	my $vmConfigSpec = VirtualMachineConfigSpec->new(annotation=>$user);
+	$vm_view->ReconfigVM_Task(spec => $vmConfigSpec); 
+	my $rename = $vm_view->name;
+	my $userwithunderline='_'.$user;
+	$rename =~ s/$userwithunderline//i;
+	$vm_view->Rename_Task(newName=>$rename);
 }
 
 sub get_relocate_spec() {
@@ -123,5 +151,7 @@ if (Opts::get_option('action') eq 'createvm')
 { deploy_template(); }
 elsif (Opts::get_option('action') eq 'updateinfo')
 { update_task(); }
+elsif (Opts::get_option('action') eq 'rename')
+{ renamesub(Opts::get_option('vmname'),Opts::get_option('user')); }
 
 Util::disconnect();

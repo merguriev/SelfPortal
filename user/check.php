@@ -1,4 +1,6 @@
 <?php
+/*error_reporting(E_ALL);
+ini_set('display_errors', 'on');*/
 ini_set('session.cookie_httponly', '1');
 session_start();
 if (!isset($_SESSION['user_id'])) die (http_response_code(401));
@@ -61,7 +63,10 @@ include_once ("access.php");
                         break;
                     case "terminatevm": $cli .=" server delete '$_POST[id]'";
                         $cli_flag=true;
-                        $query="DELETE FROM `vms` WHERE `vm_id`= '$_POST[id]'";
+                        $query="UPDATE `vms` set `vm_id`='TERMINATED_".$_POST['id']."' WHERE `vm_id`= '$_POST[id]'";
+                        break;
+					case "clearvm":
+						$query="DELETE FROM `vms` WHERE `vm_id`= '".$_POST['id']."'";
                         break;
                     case "rebootvm": $cli .=" server reboot '$_POST[id]'";
                         $query="UPDATE `vms` SET `status`='Enabled' where `vm_id`='$_POST[id]'";
@@ -142,8 +147,11 @@ include_once ("access.php");
                         break;
                     case "terminatevm": $cli .="controlvm.pl --vmname '$_POST[id]' --action Destroy";
                         $cli_flag=true;
-                        $query="DELETE FROM `vms` WHERE `vm_id`= '$_POST[id]'";
+                        $query="UPDATE `vms` set `vm_id`='TERMINATED_".$_POST['id']."' WHERE `vm_id`= '$_POST[id]'";
                         break;
+					case "clearvm":
+						$query="DELETE FROM `vms` WHERE `vm_id`= '".$_POST['id']."'";
+                        break;	
                     case "rebootvm": $cli .="controlvm.pl --vmname '$_POST[id]' --action Restart";
                         $query="UPDATE `vms` SET `status`='Enabled' where `vm_id`='$_POST[id]'";
                         $cli_flag=true;
@@ -154,9 +162,6 @@ include_once ("access.php");
                     case "images": $cli .="listvms.pl --folder '".VMW_TEMPLATE_FOLDER."'";
                         $cli_flag=true;
                         break;
-                    /*case "imagedetails": $cli .=" image show '$_POST[id]' -f json";
-                        $cli_flag=true;
-                        break;*/
                     case "flavor": echo json_encode(array(), JSON_FORCE_OBJECT); return;
                         break;
                     case "extend":
@@ -166,9 +171,6 @@ include_once ("access.php");
                         $query = "SELECT COUNT(vm_id) FROM `vms` WHERE user_id='".$_SESSION['user_id']."'";
                         $result=server_db($query);
                         break;
-/*                    case "assignip":
-                        add_ip_to_server($_POST['id'],get_free_ip());
-                        break;*/
                 }
 				$cli .=" --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --datacenter '".VMW_DATACENTER."'";
         }

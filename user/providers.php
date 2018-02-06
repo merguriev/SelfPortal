@@ -22,7 +22,31 @@ function get_vms($cli,$panel,$provider) {
 	if ($provider=="vsphere")
 	{
 		foreach ($vm_in_db as $item) {
-			if (strpos($item['vm_id'], "task-")!==false) {
+			if (strpos($item['vm_id'], "TERMINATED_")!==false)
+			{
+				$vm=new stdClass();
+				$vm->ID = $item['vm_id'];
+				$vm->date = "N/A";
+				$vm->owner = $item['username'];
+				$vm->extendlimit=0;
+				$vm->Status="TERMINATED";
+				$vm->Image="TERMINATED";
+				$vm->Name=$item['title'];
+				$vm_user_list[]=$vm;
+			}
+			elseif (strpos($item['vm_id'], "FAILURE_")!==false)
+			{
+				$vm=new stdClass();
+				$vm->ID = $item['vm_id'];
+				$vm->date = "N/A";
+				$vm->owner = $item['username'];
+				$vm->extendlimit=0;
+				$vm->Status="FAILURE";
+				$vm->Image="FAILURE";
+				$vm->Name=$item['title'];
+				$vm_user_list[]=$vm;
+			}
+			elseif (strpos($item['vm_id'], "task-")!==false) {
 				$vm=new stdClass();
 				$vm->ID = -1;
 				$vm->date = $item['exp_date'];
@@ -107,7 +131,7 @@ function remove_key_from_openstack($id,$title){
 }
 
 function create_vsphere_vm ($image_id,$name,$owner){
-    $cli=$GLOBALS['cli']."createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate ".$image_id." --vmname ".$name."_".$owner." --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action createvm --datacenter '".VMW_DATACENTER."'";
+    $cli=$GLOBALS['cli']."createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate ".$image_id." --vmname '".$name."' --user '".$owner."' --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action createvm --datacenter '".VMW_DATACENTER."'";
 	set_time_limit(0);
     $task=shell_exec($cli);
     return $task;

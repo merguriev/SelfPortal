@@ -311,7 +311,7 @@ if(!isset($_SESSION['user'])) die(header("Location: /index.php"));
 											</li>
 											<li>
 												<?php
-                                            echo "<a href=\"$_SERVER[SCRIPT_NAME]?dashboard=VSphere VMs\">VSphere VMs</a>"
+                                            echo "<a href=\"$_SERVER[SCRIPT_NAME]?dashboard=vSphere VMs\">vSphere VMs</a>"
                                             ?>
 											</li>
 										</ul>
@@ -484,7 +484,7 @@ else switch ($_GET['dashboard']){
                                     <li class=\"\"><a href=\"#openstack_vm_div\" data-toggle=\"tab\" aria-expanded=\"false\">OpenStack VMs</a>
                                     </li>
 									</li>
-                                    <li class=\"\"><a href=\"#vsphere_vm_div\" data-toggle=\"tab\" aria-expanded=\"false\">VSphere VMs</a>
+                                    <li class=\"\"><a href=\"#vsphere_vm_div\" data-toggle=\"tab\" aria-expanded=\"false\">vSphere VMs</a>
                                     </li>
                                 </ul>
 
@@ -560,7 +560,7 @@ else switch ($_GET['dashboard']){
              case "Openstack VMs":
                  echo "<div class=\"row\"><div class=\"col-sm-11\"><button type=\"button\" data-provider=\"openstack\" class=\"btn btn-primary btn-vm-add\">Launch Instance</button></div><div class=\"col-sm-1\"><div onclick=\"js_panel_generate('openstackvms')\"><a href=\"#\"><i class=\"fa fa-refresh fa-2x\"></i></a></div></div></div><hr><div id=\"openstack_vm_div\" panel=\"user\"><script>js_panel_generate(\"openstackvms\"); </script></div>";
 				 break;
-			 case "VSphere VMs":
+			 case "vSphere VMs":
 		         echo "<div class=\"row\"><div class=\"col-sm-11\"><button type=\"button\" data-provider=\"vsphere\" class=\"btn btn-primary btn-vm-add\">Launch Instance</button></div><div class=\"col-sm-1\"><div onclick=\"js_panel_generate('vspherevms')\"><a href=\"#\"><i class=\"fa fa-refresh fa-2x\"></i></a></div></div></div><hr><div id=\"vsphere_vm_div\" panel=\"user\"><script>js_panel_generate(\"vspherevms\"); </script></div>";
 				 break;
 }
@@ -571,8 +571,8 @@ else switch ($_GET['dashboard']){
 		</div>
 		<div class="panel-footer">
 			<div align="center" class="col-md-4"></div>
-			<div align="center" class="col-md-4"><a href="mailto:helpdesk_team@altoros.com?Subject=Selfportal" target="_top">Report bug</a></div>
-			<div align="right" class="col-md-4"><i>Version: 0.3.0.2 (VMWare async)</i></div>
+			<div align="center" class="col-md-4"><a href="https://github.com/Altoros/SelfPortal/issues">Report bug</a></div>
+			<div align="right" class="col-md-4"><i>Version: 0.3.0.5 (VMWare creation history)</i></div>
 		</div>
 
 		<!-- Metis Menu Plugin JavaScript -->

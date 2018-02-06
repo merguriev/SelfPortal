@@ -756,8 +756,11 @@ function js_panel_generate_vms(returndata, provider) {
 						case "Building":
 							body += '<span class="label label-default">BUILDING';
 							break;
+						case "TERMINATED":
+							body += '<span class="label label-danger">TERMINATED';
+							break;
 						default:
-							body += '<span class="label label-danger"">FAILURE';
+							body += '<span class="label label-danger">FAILURE';
 					};
 					body +='</span></div></div></td><td><div class="dropdown">';
 					var extendlimit = new Date();
@@ -775,7 +778,18 @@ function js_panel_generate_vms(returndata, provider) {
 								'</ul> ';
 						}
 					}
-					body += '</div></td><td>' +
+					if ($(this)[0]["Status"]=="TERMINATED" || $(this)[0]["Status"]=="FAILURE") {
+						body += '</div></td><td>' +
+						'<div class="dropdown">' +
+						'<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Actions' +
+						'<span class="caret"></span></button>' +
+						'<ul class="dropdown-menu vm-actions '+($(this)[0]["Status"]=="Building"?"disabled":"")+'" data-provider-vm="' + provider + '" id="' + $(this)[0]["ID"] + '">' +
+						'<li><a href="#" data-action-vm="clearvm">Remove</a></li>' +
+						'</ul> </div>' +
+						'</td>';
+					}
+					else {
+						body += '</div></td><td>' +
 						'<div class="dropdown">' +
 						'<button class="btn btn-primary btn-sm dropdown-toggle '+($(this)[0]["Status"]=="Building"?"disabled":"")+'" type="button" data-toggle="dropdown">Actions' +
 						'<span class="caret"></span></button>' +
@@ -787,7 +801,8 @@ function js_panel_generate_vms(returndata, provider) {
 						'<li><a href="#" data-action-vm="rebootvm">Reboot</a></li>' +
 						'<li><a href="#" data-action-vm-delete="terminatevm">Terminate</a></li>' +
 						'</ul> </div>' +
-						'</td>';
+						'</td>';	
+					}
 					if ($('#' + provider + '_vm_div').attr('panel') == "admin") body += '<td>' + $(this)[0]["owner"] + '</td>';
 					body += '</tr>';
 				});

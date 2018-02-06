@@ -35,6 +35,7 @@ function access_level_internal($resourse,$action,$resource_id) {
                 case "terminatevm":
                 case "assignip":
                 case "stopvm":
+				case "clearvm":
                 case "info":
                 case "startvm":
                 case "extend":
