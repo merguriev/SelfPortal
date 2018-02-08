@@ -120,8 +120,6 @@ That's it! Now you can check your notifications...
 
 ...or go to admin panel and check the VMs of other users (if you have sufficient permissions, of course:wink:).
 
-![Admin panel](img/admin_panel_window.PNG)
-
 
 ## Contributing
 
