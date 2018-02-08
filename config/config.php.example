@@ -1,9 +1,9 @@
 <?php
 #Config DB
-define ('DB_USER', "portal");
+define ('DB_USER', "portal_user");
 define ('DB_PASSWORD', "root");
 define ('DB_DATABASE', "portal");
-define ('DB_HOST', "wtest");
+define ('DB_HOST', "localhost");
 #Config LDAP
 // Active Directory server
 define('LDAP_HOST', "example.com");

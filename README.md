@@ -34,9 +34,9 @@ cpan install Socket6
 ```
 > Do not hesitate to use php -m to verify and check all php libraries installed.
 
-2. Create /var/log/selfportal folder, grant writing access to www-data and setup logrotate for /var/log/selfportal.log file as well.
+2. Create log folder, grant writing access to www-data and setup logrotate as well.
 
-3. Clone this repo to /var/www/selfportal. Import database from /var/www/selfportal/master/db/portal.sql
+3. Clone this repo to /var/www/selfportal. Import database from /var/www/selfportal/db/portal.sql
 
 4. Install VMWare vSphere Perl SDK (download it from vmware.com. [Here](https://code.vmware.com/web/sdk/60/vsphere-perl) is a link for VSphere 6.0 SDK).
 

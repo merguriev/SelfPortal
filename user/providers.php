@@ -19,45 +19,63 @@ function get_vms($cli,$panel,$provider) {
           $vm_in_db=mysqli_query($conn,$query) or die("MySQL error: " . mysqli_error($conn) . "<hr>\nQuery: $query");
     }
 	$conn->close();
-	if ($provider=="vsphere")
+	switch ($provider)
 	{
-		foreach ($vm_in_db as $item) {
-			if (strpos($item['vm_id'], "TERMINATED_")!==false)
-			{
-				$vm=new stdClass();
-				$vm->ID = $item['vm_id'];
-				$vm->date = "N/A";
-				$vm->owner = $item['username'];
-				$vm->extendlimit=0;
-				$vm->Status="TERMINATED";
-				$vm->Image="TERMINATED";
-				$vm->Name=$item['title'];
-				$vm_user_list[]=$vm;
+		case "vsphere":
+			foreach ($vm_in_db as $item) {
+				if (strpos($item['vm_id'], "TERMINATED_VSPHERE")!==false)
+				{
+					$vm=new stdClass();
+					$vm->ID = $item['vm_id'];
+					$vm->date = "N/A";
+					$vm->owner = $item['username'];
+					$vm->extendlimit=0;
+					$vm->Status="TERMINATED";
+					$vm->Image="TERMINATED";
+					$vm->Name=$item['title'];
+					$vm_user_list[]=$vm;
+				}
+				elseif (strpos($item['vm_id'], "FAILURE_VSPHERE")!==false)
+				{
+					$vm=new stdClass();
+					$vm->ID = $item['vm_id'];
+					$vm->date = "N/A";
+					$vm->owner = $item['username'];
+					$vm->extendlimit=0;
+					$vm->Status="FAILURE";
+					$vm->Image="FAILURE";
+					$vm->Name=$item['title'];
+					$vm_user_list[]=$vm;
+				}
+				elseif (strpos($item['vm_id'], "task-")!==false) {
+					$vm=new stdClass();
+					$vm->ID = -1;
+					$vm->date = $item['exp_date'];
+					$vm->owner = $item['username'];
+					$vm->extendlimit=DAYS_USER_CAN_EXTEND_VM;
+					$vm->Status="Building";
+					$vm->Image="Deploying";
+					$vm->Name=$item['title'];
+					$vm_user_list[]=$vm;
+				}
+    		}		
+		break;
+		case "openstack":
+			foreach ($vm_in_db as $item) {
+				if (strpos($item['vm_id'], "TERMINATED_OPENSTACK")!==false)
+				{
+					$vm=new stdClass();
+					$vm->ID = $item['vm_id'];
+					$vm->date = "N/A";
+					$vm->owner = $item['username'];
+					$vm->extendlimit=0;
+					$vm->Status="TERMINATED";
+					$vm->Image="TERMINATED";
+					$vm->Name=$item['title'];
+					$vm_user_list[]=$vm;
+				}
 			}
-			elseif (strpos($item['vm_id'], "FAILURE_")!==false)
-			{
-				$vm=new stdClass();
-				$vm->ID = $item['vm_id'];
-				$vm->date = "N/A";
-				$vm->owner = $item['username'];
-				$vm->extendlimit=0;
-				$vm->Status="FAILURE";
-				$vm->Image="FAILURE";
-				$vm->Name=$item['title'];
-				$vm_user_list[]=$vm;
-			}
-			elseif (strpos($item['vm_id'], "task-")!==false) {
-				$vm=new stdClass();
-				$vm->ID = -1;
-				$vm->date = $item['exp_date'];
-				$vm->owner = $item['username'];
-				$vm->extendlimit=DAYS_USER_CAN_EXTEND_VM;
-				$vm->Status="Building";
-				$vm->Image="Deploying";
-				$vm->Name=$item['title'];
-				$vm_user_list[]=$vm;
-			}
-    	}
+		break;
 	}
     foreach ($vms as $vm){
         $exist=false;

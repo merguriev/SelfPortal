@@ -48,7 +48,7 @@ include_once ("access.php");
                         }
                         break;
                     case "list": $cli .=" server list -f json";
-                        if (($_POST['panel']) == "user" || ($_POST['panel']) == "admin") get_vms($cli,$_POST['panel']);
+                        if (($_POST['panel']) == "user" || ($_POST['panel']) == "admin") get_vms($cli,$_POST['panel'],$_POST['provider']);
                         break;
                     case "info": $cli .=" server show '$_POST[id]' -f json";
                         $cli_flag=true;
@@ -63,7 +63,7 @@ include_once ("access.php");
                         break;
                     case "terminatevm": $cli .=" server delete '$_POST[id]'";
                         $cli_flag=true;
-                        $query="UPDATE `vms` set `vm_id`='TERMINATED_".$_POST['id']."' WHERE `vm_id`= '$_POST[id]'";
+                        $query="UPDATE `vms` set `vm_id`='TERMINATED_OPENSTACK".$_POST['id']."' WHERE `vm_id`= '$_POST[id]'";
                         break;
 					case "clearvm":
 						$query="DELETE FROM `vms` WHERE `vm_id`= '".$_POST['id']."'";
@@ -147,7 +147,7 @@ include_once ("access.php");
                         break;
                     case "terminatevm": $cli .="controlvm.pl --vmname '$_POST[id]' --action Destroy";
                         $cli_flag=true;
-                        $query="UPDATE `vms` set `vm_id`='TERMINATED_".$_POST['id']."' WHERE `vm_id`= '$_POST[id]'";
+                        $query="UPDATE `vms` set `vm_id`='TERMINATED_VSPHERE_".$_POST['id']."' WHERE `vm_id`= '$_POST[id]'";
                         break;
 					case "clearvm":
 						$query="DELETE FROM `vms` WHERE `vm_id`= '".$_POST['id']."'";
@@ -199,7 +199,7 @@ include_once ("access.php");
         case "notifications":
             switch ($_POST['action']){
                 case "list":
-                    $query="SELECT `title`,`exp_date`,`days`,`status`,'VM' FROM `vms`,`users`, (SELECT `vm_id`,DATEDIFF(exp_date,CURDATE()) as days FROM `vms`) as days WHERE (days BETWEEN ".DAYS_BEFORE_DELETE." AND ".DAYS_BEFORE_DISABLE.") AND `vms`.`user_id`=`users`.`user_id` AND `days`.`vm_id`= `vms`.`vm_id` AND `users`.`user_id`=".$_SESSION['user_id']." UNION SELECT concat(`site_name`,'.',`domain`),`stop_date`,`days`,`status`,'site' FROM `users`,`proxysites`,`domains`, (SELECT `site_id`, DATEDIFF(stop_date,CURDATE()) as days FROM `proxysites`) as days WHERE (days BETWEEN ".DAYS_BEFORE_DELETE." AND ".DAYS_BEFORE_DISABLE.") AND `proxysites`.`domain_id`=`domains`.`domain_id` AND `proxysites`.`user_id`=`users`.`user_id` AND `days`.`site_id`= `proxysites`.`site_id` AND `users`.`user_id`=".$_SESSION['user_id']." ORDER by `exp_date`";
+                    $query="SELECT `title`,`exp_date`,`days`,`status`,'VM' FROM `vms`,`users`, (SELECT `vm_id`,DATEDIFF(exp_date,CURDATE()) as days FROM `vms`) as days WHERE (days BETWEEN ".DAYS_BEFORE_DELETE." AND ".DAYS_BEFORE_DISABLE.") AND `vms`.`user_id`=`users`.`user_id` AND `days`.`vm_id`= `vms`.`vm_id` AND `users`.`user_id`=".$_SESSION['user_id']." AND `vms`.`vm_id` not like 'TERMINATED%' AND `vms`.`vm_id` not like 'FAILURE%' UNION SELECT concat(`site_name`,'.',`domain`),`stop_date`,`days`,`status`,'site' FROM `users`,`proxysites`,`domains`, (SELECT `site_id`, DATEDIFF(stop_date,CURDATE()) as days FROM `proxysites`) as days WHERE (days BETWEEN ".DAYS_BEFORE_DELETE." AND ".DAYS_BEFORE_DISABLE.") AND `proxysites`.`domain_id`=`domains`.`domain_id` AND `proxysites`.`user_id`=`users`.`user_id` AND `days`.`site_id`= `proxysites`.`site_id` AND `users`.`user_id`=".$_SESSION['user_id']." ORDER by `exp_date`";
                     break;
             }
             break;

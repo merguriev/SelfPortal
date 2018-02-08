@@ -572,7 +572,7 @@ else switch ($_GET['dashboard']){
 		<div class="panel-footer">
 			<div align="center" class="col-md-4"></div>
 			<div align="center" class="col-md-4"><a href="https://github.com/Altoros/SelfPortal/issues">Report bug</a></div>
-			<div align="right" class="col-md-4"><i>Version: 0.3.0.5 (VMWare creation history)</i></div>
+			<div align="right" class="col-md-4"><i>Version: 0.3.0.6 (VMWare creation history)</i></div>
 		</div>
 
 		<!-- Metis Menu Plugin JavaScript -->

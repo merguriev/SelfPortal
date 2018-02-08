@@ -204,6 +204,15 @@ $(document).on("click", "button.btn-site-edit", function (event) {
 });
 
 $(document).on("submit", "form.form_mod", function (event) {
+	var error = false;
+	$("[id^='" + $(event.target).attr('id') + "_']").each(function () {
+		if (!form_change_handler($(this))) { error=true;}
+	});
+	if (error) {
+		event.preventDefault();
+		event.stopImmediatePropagation();
+		return true;
+	}
 	var arr = {};
 	$("[id^='" + $(event.target).attr('id') + "_']").each(function () {
 		arr[$(this).attr('name')] = $(this).val();
@@ -449,36 +458,28 @@ $(document).on("click", "button.assignip", function (event) {
 });
 
 function form_change_handler(event) {
+	if (id == "site_edit_modal_name") check_form_name_db(event);
+	if (id == "site_edit_modal_host") check_form_blacklist_db(event);
 	var id = event.attr('id');
 	var attr = event.attr('data-validator-name');
-	if (typeof attr !== typeof undefined && attr !== false) {
-
+	if (typeof attr !== typeof undefined && attr !== false) {		
 		var patt = new RegExp(attr);
 		if (!(patt.test(event.val()))) {
 			$("#site_edit_modal_name_help").html("Wrong input type! Make sure you input correct site name.");
 			$("#site_edit_modal_host_help").html("Wrong host! Make sure you have a dot and at least one letter before and two after it.");
 			event.attr("data-comment", "error");
 			event.parent().closest('div').addClass("has-error");
-			event.closest("form").find(':submit').addClass("disabled");
+			//event.closest("form").find(':submit').addClass("disabled");
 			$('#' + event.attr('id') + '_help').show();
-			return;
+			return false;
 		} else {
 			event.attr("data-comment", "");
 			event.parent().closest('div').removeClass("has-error");
 			$('#' + event.attr('id') + '_help').hide();
+			return true;
 		}
 	}
-	var error = false;
-	$('#' + event.closest('form').attr('id') + ' *').each(function () {
-		if ($(this).attr("data-comment") == "error") error = true;
-	});
-	if (!error) {
-		if (id == "site_edit_modal_name") check_form_name_db(event);
-		if (id == "site_edit_modal_host") check_form_blacklist_db(event);
-		event.closest("form").find(':submit').removeClass("disabled");
-		event.closest("form").find(':submit').addClass("enabled");
-		event.closest("form").find('span').hide();
-	}
+	return true;
 }
 
 $(document).on("submit", "form.form_add", function (event) {
@@ -543,7 +544,7 @@ $(document).on("click", ".btn-vm-add", function (event) {
 		'</div>' +
 		'<h4>Expiration date:</h4>' +
 		'<div class="form-group input-group col-sm-12" data-provide="datepicker">' +
-		'<input type="text" required class="datepicker form-control" name="date" id="vms_form_edit_modal_date" data-validator-name="^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$" disabled>' +
+		'<input type="text" required class="datepicker form-control" name="date" id="vms_form_edit_modal_date" data-validator-name="^\\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$" disabled>' +
 		'<span class="input-group-addon">' +
 		'<span class="glyphicon glyphicon-calendar"></span>' +
 		'</span>' +
@@ -552,7 +553,7 @@ $(document).on("click", ".btn-vm-add", function (event) {
 		'</div>' +
 		'<div class="modal-footer form-row">' +
 		'<div class="col-sm-12 container" style="padding: 0px 0px 10px 0px">' +
-		'<button type="submit" class="form-control btn btn-primary disabled">Launch</button>' +
+		'<button type="submit" class="form-control btn btn-primary">Launch</button>' +
 		'</div>' +
 		'<div class="col-sm-12 container" style="padding: 0px">' +
 		'<button class="form-control btn btn-danger" data-dismiss="modal">Close</button>' +
@@ -734,11 +735,11 @@ function js_panel_generate_vms(returndata, provider) {
 						'<tr><td>' +
 						$(this)[0]["Name"].split("_")[0] +
 						'</td><td>' +
-						($(this)[0]["Image Name"]=="Deploying"?'<span class="label label-default">DEPLOYING IMAGE</span>':$(this)[0]["Image Name"]) +
+						($(this)[0]["Image Name"]=="Deploying"?'<span class="label label-default">DEPLOYING IMAGE</span>':$(this)[0]["Image Name"]==null?'<span class="label label-default">UNKNOWN</span>':$(this)[0]["Image Name"]) +
 						'</td><td>';
 					if ($(this)[0]["Networks"] != null) {
 						if (typeof $(this)[0]["Networks"].split(",")[1] !== typeof undefined)
-							body += $(this)[0]["Networks"].split(",")[1];
+							body += $(this)[0]["Networks"].split(",")[$(this)[0]["Networks"].split(",").length-1];
 						else if ($(this)[0]["Status"] == "ACTIVE") body += "<button data-provider-vm=\"" + provider + "\" class=\"btn btn-primary btn-xs assignip\" id=\"" + $(this)[0]["ID"] + "\">Assign floating IP</button> ";
 						else if ($(this)[0]["Status"] == "poweredOn") body += $(this)[0]["Networks"];
 						else body += "No floating IP assigned";
@@ -759,6 +760,10 @@ function js_panel_generate_vms(returndata, provider) {
 						case "TERMINATED":
 							body += '<span class="label label-danger">TERMINATED';
 							break;
+						case "MIGRATING":
+						case "RESIZING":
+							body += '<span class="label label-warning">MAINTENANCE';
+							break;
 						default:
 							body += '<span class="label label-danger">FAILURE';
 					};
@@ -769,7 +774,7 @@ function js_panel_generate_vms(returndata, provider) {
 					if (typeof $(this)[0]["date"] !== typeof undefined) {
 						body += $(this)[0]["date"];
 						if (dateVM < extendlimit) {
-							body += '<button class="btn btn-primary btn-xs dropdown-toggle '+($(this)[0]["Status"]=="Building"?"disabled":"")+'" type="button" data-toggle="dropdown">+' +
+							body += '<button class="btn btn-primary btn-xs dropdown-toggle" type="button" data-toggle="dropdown">+' +
 								'</button>' +
 								'<ul class="dropdown-menu vm-actions" data-provider-vm="' + provider + '" vm_id="' + $(this)[0]["ID"] + '">' +
 								'<li><a href="#" data-action-vm-extend="1">+1 day</a></li>' +
@@ -783,9 +788,19 @@ function js_panel_generate_vms(returndata, provider) {
 						'<div class="dropdown">' +
 						'<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Actions' +
 						'<span class="caret"></span></button>' +
-						'<ul class="dropdown-menu vm-actions '+($(this)[0]["Status"]=="Building"?"disabled":"")+'" data-provider-vm="' + provider + '" id="' + $(this)[0]["ID"] + '">' +
+						'<ul class="dropdown-menu vm-actions" data-provider-vm="' + provider + '" id="' + $(this)[0]["ID"] + '">' +
 						'<li><a href="#" data-action-vm="clearvm">Remove</a></li>' +
 						'</ul> </div>' +
+						'</td>';
+					}
+					else if ($(this)[0]["Status"]=="MIGRATING" || $(this)[0]["Status"]=="RESIZING") {
+						body += '</div></td><td>' +
+						'<div class="dropdown">' +
+						'<button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Actions' +
+						'<span class="caret"></span></button>' +
+						'<ul class="dropdown-menu vm-actions" data-provider-vm="' + provider + '" id="' + $(this)[0]["ID"] + '">' +
+						'<li><a href="#" data-action-vminfo="info">Info</a></li>'+
+						'</ul></div>' +
 						'</td>';
 					}
 					else {
