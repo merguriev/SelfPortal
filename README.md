@@ -135,7 +135,7 @@ See also the list of [contributors](https://github.com/altoros/selfportal/contri
 
 ## License
 
-This project is licensed under Apache 2.0 License.
+This project is licensed under Apache 2.0 License. See [license](LICENSE) file for details.
 
 ## Acknowledgments && Built-ins
 
