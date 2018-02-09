@@ -135,7 +135,7 @@ See also the list of [contributors](https://github.com/altoros/selfportal/contri
 
 ## License
 
-This project is licensed under the CC-BY-NC-SA License - see the [CC website](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode) for details
+This project is licensed under Apache 2.0 License.
 
 ## Acknowledgments && Built-ins
 
@@ -149,9 +149,9 @@ This project is licensed under the CC-BY-NC-SA License - see the [CC website](ht
 ## Development plans
 
 - [x] Acrhitecture&Interface
-- [x] Splitting rights, admin panel
+- [x] Splitted rights between user and administrator, admin panel
 - [x] HTTP website proxy, blacklist
-- [x] User list
+- [x] User list in admin panel
 - [x] OpenStack provider - VM creation, modification, deletion
 - [x] VSphere provider - VM creation, modification, deletion
 - [x] Terminator - delete old unused websites and VMs
