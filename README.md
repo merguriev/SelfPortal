@@ -17,6 +17,8 @@ At both installations you should have prepared Images (OpenStack) or Templates (
 
 ### Installation [MANUAL]
 
+Using vSphere and OpenStack in SelfPortal are optional. You can skip points 9 or 10 (or both) of this instruction respectively. 
+
 1. Install NGINX, PHP (curl, json, ldap, mysqli, xml modules), MySQL/MariaDB, Perl (JSON, YAML, LWP::Protocol::https, Socket6, Switch, IO::Socket::SSL modules).
 ```Shell
 sudo -i
@@ -38,24 +40,17 @@ cpan install Socket6
 
 3. Clone this repo to /var/www/selfportal. Import database from /var/www/selfportal/db/portal.sql
 
-4. Install Python OpenStack client. Go to https://pypi.python.org/pypi/python-openstackclient for details.
-```Shell
-sudo -i
-apt install python-pip
-pip install python-openstackclient
-```
+4. Setup nginx to display selfportal at /var/www/selfportal. It's better to use https, you know it.
 
-5. Setup nginx to display selfportal at /var/www/selfportal. It's better to use https, you know it.
+5. Rename /var/www/selfportal/config/config.php.example to /var/www/selfportal/config/config.php, change all values in accordance to your infrastruscture settings.
 
-6. Rename /var/www/selfportal/config/config.php.example to /var/www/selfportal/config/config.php, change all values in accordance to your infrastruscture settings.
+6. Copy config/sites-enabled/proxy.conf to /etc/nginx/sites-enabled/proxy.conf. Setup writing access for www-data.
 
-7. Copy config/sites-enabled/proxy.conf to /etc/nginx/sites-enabled/proxy.conf. Setup writing access for www-data.
-
-8. Use sudo visudo command to add line to sudouers file:
+7. Use sudo visudo command to add line to sudouers file:
 
 > www-data    ALL=NOPASSWD: /usr/sbin/nginx, /usr/bin/crontab, /bin/grep
 
-9. Optional. If you want SelfPortal to terminate your VMs - please, add those lines to the root crontab:
+8. Optional. If you want SelfPortal to terminate your VMs - please, add those lines to the root crontab:
 
 > 0 8 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action notify
 
@@ -67,7 +62,14 @@ pip install python-openstackclient
 
 > 15 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action terminate_vm
 
-10. Install VMWare vSphere Perl SDK (download it from vmware.com. [Here](https://code.vmware.com/web/sdk/60/vsphere-perl) is a link for VSphere 6.0 SDK).
+9. Optional. Install Python OpenStack client. Go to https://pypi.python.org/pypi/python-openstackclient for details.
+```Shell
+sudo -i
+apt install python-pip
+pip install python-openstackclient
+```
+
+10. Optional. Install VMWare vSphere Perl SDK (download it from vmware.com. [Here](https://code.vmware.com/web/sdk/60/vsphere-perl) is a link for VSphere 6.0 SDK).
 
 > Prerequisites: 
 ```Shell
