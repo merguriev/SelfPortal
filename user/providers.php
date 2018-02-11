@@ -149,7 +149,7 @@ function remove_key_from_openstack($id,$title){
 }
 
 function create_vsphere_vm ($image_id,$name,$owner){
-    $cli=$GLOBALS['cli']."createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate ".$image_id." --vmname '".$name."' --user '".$owner."' --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action createvm --datacenter '".VMW_DATACENTER."'";
+    $cli=$GLOBALS['cli']."createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate ".$image_id." --vmname '".$name."' --user '".$owner."' --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action createvm";
 	set_time_limit(0);
     $task=shell_exec($cli);
     return $task;

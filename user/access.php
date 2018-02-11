@@ -133,6 +133,7 @@ function is_owner($query) {
 function write_log($entry){
     $file = fopen(LOG_FILE, "a");
     $entry=preg_replace("/--os-username .* --os-password .* --os-region-name/","--os-username ******** --os-password ******* --os-region-name",$entry);
+	$entry=preg_replace("/--username .* --password .* /","--os-username ******** --os-password ******* --os-region-name",$entry);
     fwrite($file,$entry."\n");
     fclose($file);
 }

@@ -134,7 +134,7 @@ include_once ("access.php");
                     case "list": $cli .="listvms.pl --url ".VMW_SERVER."/sdk/webService --folder '".VMW_VM_FOLDER."' --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --datacenter '".VMW_DATACENTER."'";;
                         if (($_POST['panel']) == "user" || ($_POST['panel']) == "admin") get_vms($cli,$_POST['panel'],$_POST['provider']);
                         break;
-                    case "info": $cli .="listvms.pl --vmname '$_POST[id]'";
+                    case "info": $cli .="listvms.pl --vmname '$_POST[id]' --datacenter '".VMW_DATACENTER."'";
                         $cli_flag=true;
                         break;
                     case "stopvm": $cli .="controlvm.pl --vmname '$_POST[id]' --action Stop";
@@ -159,7 +159,7 @@ include_once ("access.php");
                     case "vnc": $cli .="vnc.pl -vmname ".$_POST[id];
                         $cli_flag=true;
                         break;
-                    case "images": $cli .="listvms.pl --folder '".VMW_TEMPLATE_FOLDER."'";
+                    case "images": $cli .="listvms.pl --folder '".VMW_TEMPLATE_FOLDER."' --datacenter '".VMW_DATACENTER."'";
                         $cli_flag=true;
                         break;
                     case "flavor": echo json_encode(array(), JSON_FORCE_OBJECT); return;
@@ -172,7 +172,7 @@ include_once ("access.php");
                         $result=server_db($query);
                         break;
                 }
-				$cli .=" --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --datacenter '".VMW_DATACENTER."'";
+				$cli .=" --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."'";
         }
         break;
         case "keys":

@@ -47,11 +47,6 @@ my %opts = (
       help => "The name of the virtual machine",
       required => 0,
    },
-   'datacenter' => {
-      type => "=s",
-      help => "The name of the virtual machine",
-      required => 0,
-   },
 );
 
 Opts::add_options(%opts);

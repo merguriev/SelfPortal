@@ -36,11 +36,6 @@ my %opts = (
       help => "Start, Stop, Restart, Destroy",
       required => 1,
    },
-   'datacenter' => {
-      type => "=s",
-      help => "The name of the virtual machine",
-      required => 0,
-   },
 );
 
 Opts::add_options(%opts);
