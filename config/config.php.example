@@ -48,4 +48,5 @@ define('VMW_TEMPLATE_FOLDER','SelfPortalTemplates');
 define('VMW_VM_FOLDER','SelfPortalVMs');
 define('VMW_RESOURCE_POOL','SelfPortal');
 define('VMW_DATASTORE','DatastoreName');
+define('VMW_DATACENTER','DataCenterName');
 ?>

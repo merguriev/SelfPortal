@@ -231,11 +231,11 @@ function shutdown_vm(){
     $vms=sql_query($query);
     usleep(1000);
     foreach ($vms as $vm) {
-        $cli=$GLOBALS['openstack_cli']." server stop '.$vm[vm_id].' 2>&1";
+        $cli=$GLOBALS['openstack_cli']." server stop '".$vm['vm_id']."' 2>&1";
         $cli_result=shell_exec($cli);
         if (isset($cli_result))
 		{
-			$cli=$GLOBALS['vsphere_cli']."--vmname ".$vm[vm_id]." --action Stop";
+			$cli=$GLOBALS['vsphere_cli']."--vmname ".$vm['vm_id']." --action Stop";
         	$cli_result2=shell_exec($cli);
 			if (isset($cli_result2)) write_log(date('Y-m-d H:i:s')." [CRON][SHUTDOWN][ERROR] Cron tried to query both VSphere and OpenStack: '".$cli."', but error occured. Openstack: ".$cli_result.". VSphere: ".$cli_result2);
 			else write_log(date('Y-m-d H:i:s')." [VSPHERE][CRON][SHUTDOWN][INFO] Cron tried to query VSphere: '".$cli."' and suceeded.");
@@ -248,13 +248,13 @@ function terminate_vm(){
     $vms=sql_query($query);
     usleep(1000);
     foreach ($vms as $vm) {
-        $query="DELETE FROM `vms` WHERE `vm_id`= '.$vm[vm_id].'";
+        $query="DELETE FROM `vms` WHERE `vm_id`= '".$vm['vm_id']."'";
         sql_query($query);
-        $cli=$GLOBALS['openstack_cli']." server delete '.$vm[vm_id].' 2>&1";
+        $cli=$GLOBALS['openstack_cli']." server delete ".$vm['vm_id']." 2>&1";
                 $cli_result=shell_exec($cli);
         if (isset($cli_result))
 		{
-			$cli=$GLOBALS['vsphere_cli']."--vmname ".$vm[vm_id]." --action Destroy";
+			$cli=$GLOBALS['vsphere_cli']."--vmname ".$vm['vm_id']." --action Destroy";
         	$cli_result2=shell_exec($cli);
 			if (isset($cli_result2)) write_log(date('Y-m-d H:i:s')." [CRON][TERMINATE][ERROR] Cron tried to query both VSphere and OpenStack: '".$cli."', but error occured. Openstack: ".$cli_result.". VSphere: ".$cli_result2);
 			else write_log(date('Y-m-d H:i:s')." [VSPHERE][CRON][TERMINATE][INFO] Cron tried to query VSphere: '".$cli."' and suceeded.");
