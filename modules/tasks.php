@@ -40,7 +40,7 @@ function update_info($task,$user)
 {
 	$cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate none --vmname ".$task." --user ".$user." --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action updateinfo";
 	$result=shell_exec($cli);
-	if ($result!==0)
+	if ($result!=0)
 	{
 		if ($result==1)
 		{
