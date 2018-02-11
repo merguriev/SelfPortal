@@ -258,7 +258,7 @@ if(!isset($_SESSION['user'])) die(header("Location: /index.php"));
 						</a>
 						<ul class="dropdown-menu dropdown-user">
 							<?php
-                    echo "<li><a href=\"$_SERVER[SCRIPT_NAME]?dashboard=Profile\"><i class=\"fa fa-user fa-fw\"></i> User Profile</a></li>"
+                    echo "<li><a href=\"$_SERVER[SCRIPT_NAME]?dashboard=Profile\"><i class=\"fa fa-user fa-fw\"></i> User Profile</a></li>";
                     ?>
 								<?php if($_SESSION['access']==2) {
                     echo "<li><a href=\"$_SERVER[SCRIPT_NAME]?dashboard=Portal settings\"><i class=\"fa fa-gear fa-fw\"></i>Admin panel</a></li>";}
@@ -293,29 +293,25 @@ if(!isset($_SESSION['user'])) die(header("Location: /index.php"));
 								<ul class="nav nav-second-level">
 									<li>
 										<?php
-                                    echo "<a href=\"$_SERVER[SCRIPT_NAME]?dashboard=Sites\">Sites</a>"
+                                    echo "<a href=\"$_SERVER[SCRIPT_NAME]?dashboard=Sites\">Sites</a>";
                                         ?>
 									</li>
 									<li class="hide">
 										<?php
-                                        echo "<a href=\"$_SERVER[SCRIPT_NAME]?dashboard=Projects\">Projects</a>"
+                                        echo "<a href=\"$_SERVER[SCRIPT_NAME]?dashboard=Projects\">Projects</a>";
                                         ?>
 									</li>
-									<li>
-										<a href="#">Virtual machines <span class="fa arrow"></span></a>
-										<ul class="nav nav-third-level">
-											<li>
-												<?php
-                                            echo "<a href=\"$_SERVER[SCRIPT_NAME]?dashboard=Openstack VMs\">Openstack VMs</a>"
-                                            ?>
-											</li>
-											<li>
-												<?php
-                                            echo "<a href=\"$_SERVER[SCRIPT_NAME]?dashboard=vSphere VMs\">vSphere VMs</a>"
-                                            ?>
-											</li>
-										</ul>
-									</li>
+									<?php 
+										if (defined('VMW_SERVER') || defined('OS_AUTH_URL'))
+										{
+											echo '<li>
+												<a href="#">Virtual machines <span class="fa arrow"></span></a>
+												<ul class="nav nav-third-level">';		
+											if (defined('OS_AUTH_URL')) echo "<li><a href=\"$_SERVER[SCRIPT_NAME]?dashboard=Openstack VMs\">Openstack VMs</a></li>";
+											if (defined('VMW_SERVER'))  echo "<li><a href=\"$_SERVER[SCRIPT_NAME]?dashboard=vSphere VMs\">vSphere VMs</a></li>";
+											echo '</ul></li>';
+										}									
+                                    ?>				
 								</ul>
 							</li>
 						</ul>
@@ -480,13 +476,12 @@ else switch ($_GET['dashboard']){
                                     <li class=\"\"><a href=\"#users\" data-toggle=\"tab\" aria-expanded=\"false\">Users</a>
                                     </li>
                                     <li class=\"\"><a href=\"#sites_table_div\" data-toggle=\"tab\" aria-expanded=\"false\">Sites</a>
-                                    </li>
-                                    <li class=\"\"><a href=\"#openstack_vm_div\" data-toggle=\"tab\" aria-expanded=\"false\">OpenStack VMs</a>
-                                    </li>
-									</li>
-                                    <li class=\"\"><a href=\"#vsphere_vm_div\" data-toggle=\"tab\" aria-expanded=\"false\">vSphere VMs</a>
-                                    </li>
-                                </ul>
+                                    </li>";
+                                    if (defined('OS_AUTH_URL')) echo "<li class=\"\"><a href=\"#openstack_vm_div\" data-toggle=\"tab\" aria-expanded=\"false\">OpenStack VMs</a>
+                                    </li>";
+                                    if (defined('VMW_SERVER')) echo "<li class=\"\"><a href=\"#vsphere_vm_div\" data-toggle=\"tab\" aria-expanded=\"false\">vSphere VMs</a>
+                                    </li>";
+                                echo "</ul>
 
                                 <!-- Tab panes -->
                                 <div class=\"tab-content\">
@@ -572,7 +567,7 @@ else switch ($_GET['dashboard']){
 		<div class="panel-footer">
 			<div align="center" class="col-md-4"></div>
 			<div align="center" class="col-md-4"><a href="https://github.com/Altoros/SelfPortal/issues">Report bug</a></div>
-			<div align="right" class="col-md-4"><i>Version: 0.3.0.5 (VMWare creation history)</i></div>
+			<div align="right" class="col-md-4"><i>Version: 0.3.0.7 (VMWare creation history)</i></div>
 		</div>
 
 		<!-- Metis Menu Plugin JavaScript -->

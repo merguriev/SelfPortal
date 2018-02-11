@@ -5,7 +5,7 @@ include_once(dirname(__FILE__).'/../user/access.php');
 include_once(dirname(__FILE__).'/../plugins/phpmailer/PHPMailerAutoload.php');
 #Connect to openstack API
 $openstack_cli="openstack --os-auth-url ".OS_AUTH_URL." --os-project-id ".OS_PROJECT_ID." --os-project-name ".OS_PROJECT_NAME." --os-user-domain-name ".OS_USER_DOMAIN_NAME." --os-username ".OS_USERNAME." --os-password ".OS_PASSWORD." --os-region-name ".OS_REGION_NAME." --os-interface ".OS_INTERFACE." --os-identity-api-version ".OS_IDENTITY_API_VERSION;
-$vsphere_cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/controlvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --datacenter '".VMW_DATACENTER."'";
+$vsphere_cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/controlvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."'";
 $shortopts  = "";
 $shortopts .= "v::"; // Необязательное значение
 
@@ -38,7 +38,7 @@ switch ($options['action']){
 
 function update_info($task,$user)
 {
-	$cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate none --vmname ".$task." --user ".$user." --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action updateinfo --datacenter '".VMW_DATACENTER."'";
+	$cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate none --vmname ".$task." --user ".$user." --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action updateinfo";
 	$result=shell_exec($cli);
 	if ($result!==0)
 	{
@@ -49,8 +49,8 @@ function update_info($task,$user)
 		elseif (preg_match('/\s/',$result))
 		{
 			#$query="DELETE FROM vms where vm_id='".$task."'";
-			$query="UPDATE `vms` SET `vm_id`='FAILURE_".$task."' where vm_id='".$task."'";
-			$toreturn=$result;
+			#$query="UPDATE `vms` SET `vm_id`='FAILURE_".$task."' where vm_id='".$task."'";
+			return $result;
 		}
 		else
 		{
@@ -77,21 +77,16 @@ function vmupdate()
     $conn->close();
 	foreach ($vm_in_db as $item) {
 				$error = update_info($item['vm_id'],$item['username']);
-				if ($error==1)
+				if ($error==1 || preg_match('/\s/',$error))
 				{
 					$returneddebug=vmdebug($item['vm_id'],$item['title'],$item['username']);
 					if ($returneddebug==0) send_notification ($item['email'],'Hi! Your VM called "'.$item['title'].'" is ready.<br><hr>Sincerely yours, SelfPortal. In case of any errors - please, contact your system administrators via '.MAIL_ADMIN);
-					$item['vm_id']=$error;
-				}
-				elseif (preg_match('/\s/',$error)) {
-					send_notification (MAIL_ADMIN,'User with id '.$item['user_id'].' have tried to create VM (VSphere provider, i guess) with name '.$item['title'].', but error occured: '.$error);
-					send_notification ($item['email'],'Hi! There was something strange, when we\'ve to create VM called "'.$item['title'].'" for you. Unfortunately, an error occured: '.$error.'. If you know how to fix it - good, otherwise - please, contact your system administrators via '.MAIL_ADMIN);
-					
+					else {send_notification (MAIL_ADMIN,'User with id '.$item['user_id'].' have tried to create VM (VSphere provider, i guess) with name '.$item['title'].', but error occured: '.$error);
+					send_notification ($item['email'],'Hi! There was something strange, when we\'ve to create VM called "'.$item['title'].'" for you. Unfortunately, an error occured: '.$error.'. If you know how to fix it - good, otherwise - please, contact your system administrators via '.MAIL_ADMIN); $success=false;}	
 				}
 				elseif ($error!=-1)
 				{
 					send_notification ($item['email'],'Hi! Your VM called "'.$item['title'].'" is ready.<br><hr>Sincerely yours, SelfPortal. In case of any errors - please, contact your system administrators via '.MAIL_ADMIN);
-					$item['vm_id']=$error;
 				}
 				else $success=false;
 	}
@@ -106,8 +101,17 @@ function vmdebug($task,$vmname,$user)
 	{
 		$query="UPDATE `vms` SET `vm_id`='".$result."' where `vm_id`='".$task."'";
 		sql_query($query);
-		$cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate none --vmname ".$result." --user ".$user." --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action rename --datacenter '".VMW_DATACENTER."'";
-		shell_exec($cli);
+		$cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate none --vmname ".$result." --user ".$user." --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action rename";
+		$result = shell_exec($cli);
+		if (!empty($result)) { 
+			send_notification(MAIL_ADMIN,"Hello, Administrator! Something went wrong when user named ".$user." tried to create VM '".$vmname."' in VSphere. I was not able to rename a VM, so i've deleted it. Please, check it.");
+			$query="UPDATE `vms` set `vm_id`='FAILURE_".$task."' where `vm_id`='".$task."'";
+			sql_query($query);
+			$cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/controlvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --vmname ".$result." --action Destroy";
+			$result = shell_exec($cli);
+			return 0;
+		}
+		else return 1;
 	}
 	else {
 		send_notification(MAIL_ADMIN,"Hello, Administrator! Something went wrong when user named ".$user." tried to create VM '".$vmname."' in VSphere. I was not able to find task '".$task."' or a vm by it's name. Please, check it.");
@@ -231,11 +235,11 @@ function shutdown_vm(){
     $vms=sql_query($query);
     usleep(1000);
     foreach ($vms as $vm) {
-        $cli=$GLOBALS['openstack_cli']." server stop '.$vm[vm_id].' 2>&1";
+        $cli=$GLOBALS['openstack_cli']." server stop '".$vm['vm_id']."' 2>&1";
         $cli_result=shell_exec($cli);
         if (isset($cli_result))
 		{
-			$cli=$GLOBALS['vsphere_cli']."--vmname ".$vm[vm_id]." --action Stop";
+			$cli=$GLOBALS['vsphere_cli']."--vmname ".$vm['vm_id']." --action Stop";
         	$cli_result2=shell_exec($cli);
 			if (isset($cli_result2)) write_log(date('Y-m-d H:i:s')." [CRON][SHUTDOWN][ERROR] Cron tried to query both VSphere and OpenStack: '".$cli."', but error occured. Openstack: ".$cli_result.". VSphere: ".$cli_result2);
 			else write_log(date('Y-m-d H:i:s')." [VSPHERE][CRON][SHUTDOWN][INFO] Cron tried to query VSphere: '".$cli."' and suceeded.");
@@ -248,17 +252,21 @@ function terminate_vm(){
     $vms=sql_query($query);
     usleep(1000);
     foreach ($vms as $vm) {
-        $query="DELETE FROM `vms` WHERE `vm_id`= '.$vm[vm_id].'";
-        sql_query($query);
-        $cli=$GLOBALS['openstack_cli']." server delete '.$vm[vm_id].' 2>&1";
-                $cli_result=shell_exec($cli);
+        $cli=$GLOBALS['openstack_cli']." server delete ".$vm['vm_id']." 2>&1";
+        $cli_result=shell_exec($cli);
+		$query="DELETE FROM `vms` WHERE `vm_id`= '".$vm['vm_id']."'";
         if (isset($cli_result))
 		{
-			$cli=$GLOBALS['vsphere_cli']."--vmname ".$vm[vm_id]." --action Destroy";
+			echo $cli_result;
+			$cli=$GLOBALS['vsphere_cli']."--vmname ".$vm['vm_id']." --action Destroy";
         	$cli_result2=shell_exec($cli);
 			if (isset($cli_result2)) write_log(date('Y-m-d H:i:s')." [CRON][TERMINATE][ERROR] Cron tried to query both VSphere and OpenStack: '".$cli."', but error occured. Openstack: ".$cli_result.". VSphere: ".$cli_result2);
-			else write_log(date('Y-m-d H:i:s')." [VSPHERE][CRON][TERMINATE][INFO] Cron tried to query VSphere: '".$cli."' and suceeded.");
+			else { write_log(date('Y-m-d H:i:s')." [VSPHERE][CRON][TERMINATE][INFO] Cron tried to query VSphere: '".$cli."' and suceeded."); sql_query($query); }
 		}
-        else write_log(date('Y-m-d H:i:s')." [OPENSTACK][CRON][TERMINATE][INFO] Cron tried to query OpenStack: '".$cli."' and suceeded.");
+        else 
+		{
+			write_log(date('Y-m-d H:i:s')." [OPENSTACK][CRON][TERMINATE][INFO] Cron tried to query OpenStack: '".$cli."' and suceeded.");
+        	sql_query($query);
+		}
     }
 }

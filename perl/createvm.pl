@@ -61,11 +61,6 @@ my %opts = (
                 required => 0,
 				default => "SelfPortalVMs",
         },
-		'datacenter' => {
-      		type => "=s",
-      		help => "The name of the virtual machine",
-      		required => 0,
-   		},
 );
 Opts::add_options(%opts);
 Opts::parse();
