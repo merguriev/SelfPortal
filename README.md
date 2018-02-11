@@ -15,7 +15,7 @@ These instructions will get you a copy of the project up and running on your loc
 In order to get SelfPortal properly functional you need to have OpenStack and VSphere (VCenter) installations in your infrastructure and a Ubuntu Linux machine.
 At both installations you should have prepared Images (OpenStack) or Templates (VSphere).
 
-### Installing
+### Installation [MANUAL]
 
 1. Install NGINX, PHP (curl, json, ldap, mysqli, xml modules), MySQL/MariaDB, Perl (JSON, YAML, LWP::Protocol::https, Socket6, Switch, IO::Socket::SSL modules).
 ```Shell
@@ -38,7 +38,36 @@ cpan install Socket6
 
 3. Clone this repo to /var/www/selfportal. Import database from /var/www/selfportal/db/portal.sql
 
-4. Install VMWare vSphere Perl SDK (download it from vmware.com. [Here](https://code.vmware.com/web/sdk/60/vsphere-perl) is a link for VSphere 6.0 SDK).
+4. Install Python OpenStack client. Go to https://pypi.python.org/pypi/python-openstackclient for details.
+```Shell
+sudo -i
+apt install python-pip
+pip install python-openstackclient
+```
+
+5. Setup nginx to display selfportal at /var/www/selfportal. It's better to use https, you know it.
+
+6. Rename /var/www/selfportal/config/config.php.example to /var/www/selfportal/config/config.php, change all values in accordance to your infrastruscture settings.
+
+7. Copy config/sites-enabled/proxy.conf to /etc/nginx/sites-enabled/proxy.conf. Setup writing access for www-data.
+
+8. Use sudo visudo command to add line to sudouers file:
+
+> www-data    ALL=NOPASSWD: /usr/sbin/nginx, /usr/bin/crontab, /bin/grep
+
+9. Optional. If you want SelfPortal to terminate your VMs - please, add those lines to the root crontab:
+
+> 0 8 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action notify
+
+> 1 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action disable
+
+> 5 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action delete
+
+> 10 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action shutdown_vm
+
+> 15 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action terminate_vm
+
+10. Install VMWare vSphere Perl SDK (download it from vmware.com. [Here](https://code.vmware.com/web/sdk/60/vsphere-perl) is a link for VSphere 6.0 SDK).
 
 > Prerequisites: 
 ```Shell
@@ -64,35 +93,10 @@ Line to replace:
 return (defined $user_agent->cookie_jar and $user_agent->cookie_jar->as_string ne ''); 
 ```
 
-5. Install Python OpenStack client. Go to https://pypi.python.org/pypi/python-openstackclient for details.
-```Shell
-sudo -i
-apt install python-pip
-pip install python-openstackclient
-```
+### Installation [SEMI-AUTOMATIC]
 
-6. Setup nginx to display selfportal at /var/www/selfportal. It's better to use https, you know it.
-
-7. Rename /var/www/selfportal/config/config.php.example to /var/www/selfportal/config/config.php, change all values in accordance to your infrastruscture settings.
-
-8. Copy config/sites-enabled/proxy.conf to /etc/nginx/sites-enabled/proxy.conf. Setup writing access for www-data.
-
-10. Use sudo visudo command to add line to sudouers file:
-
-> www-data    ALL=NOPASSWD: /usr/sbin/nginx, /usr/bin/crontab, /bin/grep
-
-11. Optional. If you want SelfPortal to terminate your VMs - please, add those lines to the root crontab:
-
-> 0 8 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action notify
-
-> 1 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action disable
-
-> 5 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action delete
-
-> 10 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action shutdown_vm
-
-> 15 0 */1 * * /usr/bin/php /var/www/selfportal/modules/tasks.php --action terminate_vm
-
+You can use install.sh file for semi-automatic install. 
+Nevertheless, you'll still have to install Perl SDK (last point of instruction) manually.
 
 ## Testing and using
 
@@ -155,7 +159,8 @@ This project is licensed under Apache 2.0 License. See [license](LICENSE) file f
 - [x] OpenStack provider - VM creation, modification, deletion
 - [x] VSphere provider - VM creation, modification, deletion
 - [x] Terminator - delete old unused websites and VMs
-- [ ] HTTPS website proxy using Lets Encrypt wildcard certificates
+- [ ] HTTPS website proxy using wildcard certificates
 - [ ] WebSocket proxy
-- [ ] VMs Backups/Snapshots
-- [ ] Mounting ISO files to VSphere VMs
+- [ ] VMs Backups
+- [ ] Mounting ISO images to VSphere VMs
+- [ ] Info for users about why vSphere VM was failed to create
