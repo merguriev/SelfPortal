@@ -40,7 +40,7 @@ function update_info($task,$user)
 {
 	$cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/createvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --resourcepool '".VMW_RESOURCE_POOL."' --vmtemplate none --vmname ".$task." --user ".$user." --folder '".VMW_VM_FOLDER."' --datastore '".VMW_DATASTORE."' --action updateinfo";
 	$result=shell_exec($cli);
-	if ($result!=0)
+	if ($result!==0)
 	{
 		if ($result==1)
 		{
@@ -49,8 +49,8 @@ function update_info($task,$user)
 		elseif (preg_match('/\s/',$result))
 		{
 			#$query="DELETE FROM vms where vm_id='".$task."'";
-			#$query="UPDATE `vms` SET `vm_id`='FAILURE_".$task."' where vm_id='".$task."'";
-			return $result;
+			$query="UPDATE `vms` SET `vm_id`='FAILURE_VSPHERE_".$task."' where vm_id='".$task."'";
+			$toreturn=$result;
 		}
 		else
 		{
@@ -67,7 +67,7 @@ function update_info($task,$user)
 function vmupdate()
 {
 	$conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_DATABASE);
-	$query="SELECT `vm_id`,`username`,`exp_date`,`vms`.`user_id`,`email`,`title` FROM `vms`,`users` WHERE `vms`.`user_id`=`users`.`user_id` and `vm_id` like '%task%'";
+	$query="SELECT `vm_id`,`username`,`exp_date`,`vms`.`user_id`,`email`,`title` FROM `vms`,`users` WHERE `vms`.`user_id`=`users`.`user_id` and `vm_id` like '%task%' and `vm_id` not like '%FAILURE%' and `vm_id` not like '%TERMINATED%'";
 	if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
     } else {
@@ -75,14 +75,27 @@ function vmupdate()
         }
 	$success=true;
     $conn->close();
+	var_dump($vm_in_db);
 	foreach ($vm_in_db as $item) {
 				$error = update_info($item['vm_id'],$item['username']);
-				if ($error==1 || preg_match('/\s/',$error))
+		echo $error;
+				if ($error===1)
 				{
-					$returneddebug=vmdebug($item['vm_id'],$item['title'],$item['username']);
+					$returneddebug=vmdebug($item['vm_id']."_".$item['username'],$item['title'],$item['username']);
 					if ($returneddebug==0) send_notification ($item['email'],'Hi! Your VM called "'.$item['title'].'" is ready.<br><hr>Sincerely yours, SelfPortal. In case of any errors - please, contact your system administrators via '.MAIL_ADMIN);
-					else {send_notification (MAIL_ADMIN,'User with id '.$item['user_id'].' have tried to create VM (VSphere provider, i guess) with name '.$item['title'].', but error occured: '.$error);
-					send_notification ($item['email'],'Hi! There was something strange, when we\'ve to create VM called "'.$item['title'].'" for you. Unfortunately, an error occured: '.$error.'. If you know how to fix it - good, otherwise - please, contact your system administrators via '.MAIL_ADMIN); $success=false;}	
+					else {
+					send_notification (MAIL_ADMIN,'User with id '.$item['user_id'].' have tried to create VM (VSphere provider, i guess) with name '.$item['title'].', but error occured: '.$error);
+					send_notification ($item['email'],'Hi! There was something strange, when we\'ve to create VM called "'.$item['title'].'" for you. Unfortunately, an error occured. If you know how to fix it - good, otherwise - please, contact your system administrators via '.MAIL_ADMIN); 
+					$success=false;
+					$query="UPDATE `vms` SET `vm_id`='FAILURE_VSPHERE_".$item['vm_id']."' where vm_id='".$item['vm_id']."'";
+					sql_query($query);
+					}	
+				}
+				elseif (preg_match('/\s/',$error))
+				{
+					send_notification (MAIL_ADMIN,'User with id '.$item['user_id'].' have tried to create VM (VSphere provider, i guess) with name '.$item['title'].', but error occured: '.$error);
+					send_notification ($item['email'],'Hi! There was something strange, when we\'ve to create VM called "'.$item['title'].'" for you. Unfortunately, an error occured: '.$error.'. If you know how to fix it - good, otherwise - please, contact your system administrators via '.MAIL_ADMIN);
+					$success=false;
 				}
 				elseif ($error!=-1)
 				{
@@ -105,7 +118,7 @@ function vmdebug($task,$vmname,$user)
 		$result = shell_exec($cli);
 		if (!empty($result)) { 
 			send_notification(MAIL_ADMIN,"Hello, Administrator! Something went wrong when user named ".$user." tried to create VM '".$vmname."' in VSphere. I was not able to rename a VM, so i've deleted it. Please, check it.");
-			$query="UPDATE `vms` set `vm_id`='FAILURE_".$task."' where `vm_id`='".$task."'";
+			$query="UPDATE `vms` set `vm_id`='FAILURE_VSPHERE_".$task."' where `vm_id`='".$task."'";
 			sql_query($query);
 			$cli="/usr/bin/perl ".dirname(__FILE__)."/../perl/controlvm.pl --url ".VMW_SERVER."/sdk/webService --username ".VMW_USERNAME." --password '".VMW_PASSWORD."' --vmname ".$result." --action Destroy";
 			$result = shell_exec($cli);
@@ -115,7 +128,7 @@ function vmdebug($task,$vmname,$user)
 	}
 	else {
 		send_notification(MAIL_ADMIN,"Hello, Administrator! Something went wrong when user named ".$user." tried to create VM '".$vmname."' in VSphere. I was not able to find task '".$task."' or a vm by it's name. Please, check it.");
-		$query="UPDATE `vms` set `vm_id`='FAILURE_".$task."' where `vm_id`='".$task."'";
+		$query="UPDATE `vms` set `vm_id`='FAILURE_VSPHRE_".$task."' where `vm_id`='".$task."'";
 		sql_query($query);
 		return 1;
 	}
